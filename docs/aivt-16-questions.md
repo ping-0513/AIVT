@@ -225,3 +225,13 @@ B. 勘違いした理由を考えて、フォローを入れながら違う部�
 C. あえて直接は指摘せず、確認の質問をして気づけるようにする。
 
 D. 違う部分だけでなく、その背景や関連する話も足して伝える。
+
+Scoring draft:
+
+```csv
+question_id,choice,primary_pole,secondary_pole
+Q09,A,R,P
+Q09,B,E,R
+Q09,C,A,G
+Q09,D,M,R
+```
