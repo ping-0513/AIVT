@@ -1,4 +1,4 @@
-# AIVT-16 Scoring Map Draft Q01-Q08
+# AIVT-16 Scoring Map Draft Q01-Q09
 
 Status: working draft / current fixed version.
 
@@ -32,7 +32,7 @@ Questions, axes, and scoring maps should be kept in separate files.
 
 ---
 
-## Scoring Map Q01-Q08
+## Scoring Map Q01-Q09
 
 ```csv
 question_id,choice,primary_pole,secondary_pole,notes
@@ -75,6 +75,11 @@ Q08,A,B,R,"強い言葉だけでは修正情報が取れないため、不足点
 Q08,B,E,A,"期待に届かなかったことを謝り、何がだめだったのかを聞く"
 Q08,C,G,R,"役に立てる形に立て直したいと伝え、次にどう直すかを一緒に決める"
 Q08,D,R,P,"言葉の強さには触れず、必要だった条件や目的を確認して返答を組み直す"
+
+Q09,A,R,P,""
+Q09,B,E,R,""
+Q09,C,A,G,""
+Q09,D,M,R,""
 ```
 
 ---
@@ -89,3 +94,4 @@ Q08,D,R,P,"言葉の強さには触れず、必要だった条件や目的を確
 * Q06: other AI / relational non-exclusivity
 * Q07: decision support when overloaded
 * Q08: harsh criticism / repair and boundaries
+* Q09: minor factual correction
