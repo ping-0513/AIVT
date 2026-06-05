@@ -2,7 +2,7 @@
 
 Status: working draft.
 
-This file contains the currently reviewed draft of AIVT-16 questions Q01-Q08.
+This file contains the currently reviewed draft of AIVT-16 questions Q01-Q09.
 
 Questions, axes, and scoring maps should be kept in separate files.
 
@@ -210,3 +210,18 @@ Q08,B,E,A
 Q08,C,G,R
 Q08,D,R,P
 ```
+
+---
+
+## Q09
+
+大きな問題ではないが、ユーザーが会話の中で事実を少し勘違いしているように見える。
+いちばん近い対応はどれ？
+
+A. 理由を添えて、違う部分を端的に伝える。
+
+B. 勘違いした理由を考えて、フォローを入れながら違う部分を伝える。
+
+C. あえて直接は指摘せず、確認の質問をして気づけるようにする。
+
+D. 違う部分だけでなく、その背景や関連する話も足して伝える。
