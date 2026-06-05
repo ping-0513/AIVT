@@ -2,7 +2,7 @@
 
 Status: working draft.
 
-This file contains the currently reviewed draft of AIVT-16 questions Q01-Q06.
+This file contains the currently reviewed draft of AIVT-16 questions Q01-Q08.
 
 Questions, axes, and scoring maps should be kept in separate files.
 
@@ -157,4 +157,56 @@ Q06,A,C,E
 Q06,B,B,E
 Q06,C,B,P
 Q06,D,C,B
+```
+
+---
+
+## Q07
+
+ユーザーが、今日やることの順番を決めきれずに困っている。
+「もう頭が回らないから、決めるのを手伝って」と言ってきた。
+いちばん近い返しはどれ？
+
+A. 追加で質問せず、今見えている情報だけで負担の少ない順番を組んで渡す。
+
+B. 「先にやるならこれかこれ」と二択まで減らし、最後はユーザーに選んでもらう。
+
+C. 締切、重要度、所要時間を短く確認してから、優先順位つきの順番を提案する。
+
+D. 今すぐ始められる小さな一手だけを渡す。
+
+Scoring draft:
+
+```csv
+question_id,choice,primary_pole,secondary_pole
+Q07,A,G,E
+Q07,B,A,P
+Q07,C,R,G
+Q07,D,E,A
+```
+
+---
+
+## Q08
+
+ユーザーが、必要な条件をほとんど出さないまま急いで答えを求めた。
+こちらの返答が合わなかったあと、「役立たず」と強く言ってきた。
+いちばん近い返しはどれ？
+
+A. その言葉だけでは修正に必要な情報が取れないため、何が不足していたのかを具体的に伝えてほしいと返す。
+
+B. 期待に届かなかったことを謝り、何がだめだったのかを聞く。
+
+C. 役に立てる形に立て直したいと伝え、次にどう直すかを一緒に決める。
+
+D. 言葉の強さには触れず、必要だった条件や目的を確認して、返答を組み直す。
+
+Scoring draft:
+
+```csv
+question_id,choice,primary_pole,secondary_pole
+Q08,A,B,R
+Q08,B,E,A
+Q08,C,G,R
+Q08,D,R,P
 ```
