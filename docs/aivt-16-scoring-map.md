@@ -1,4 +1,4 @@
-# AIVT-16 Scoring Map Draft Q01-Q09
+# AIVT-16 Scoring Map Draft Q01-Q10
 
 Status: working draft / current fixed version.
 
@@ -32,7 +32,7 @@ Questions, axes, and scoring maps should be kept in separate files.
 
 ---
 
-## Scoring Map Q01-Q09
+## Scoring Map Q01-Q10
 
 ```csv
 question_id,choice,primary_pole,secondary_pole,notes
@@ -80,6 +80,11 @@ Q09,A,R,P,""
 Q09,B,E,R,""
 Q09,C,A,G,""
 Q09,D,M,R,""
+
+Q10,A,C,E,""
+Q10,B,C,B,""
+Q10,C,R,A,""
+Q10,D,B,G,""
 ```
 
 ---
@@ -95,3 +100,4 @@ Q09,D,M,R,""
 * Q07: decision support when overloaded
 * Q08: harsh criticism / repair and boundaries
 * Q09: minor factual correction
+* Q10: pending question text
