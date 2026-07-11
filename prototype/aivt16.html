@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIVT-16 Ver2 プロトタイプ</title>
+<script src="data.js"></script>
+<style>
+  :root {
+    --surface: #fcfcfb; --card: #ffffff; --border: #e4e3df;
+    --text: #0b0b0b; --text-2: #52514e; --text-3: #8a8985;
+    --accent: #2a78d6; --accent-soft: #eaf2fc; --track: #ececea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #1a1a19; --card: #232322; --border: #3a3937;
+      --text: #ffffff; --text-2: #c3c2b7; --text-3: #8a8985;
+      --accent: #3987e5; --accent-soft: #24344a; --track: #333331;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--surface); color: var(--text);
+    font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.7; font-size: 16px;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 8px 0 4px; }
+  .sub { color: var(--text-2); font-size: 14px; margin: 0 0 24px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin: 16px 0;
+  }
+  .note { color: var(--text-3); font-size: 13px; }
+  label { display: block; font-size: 13px; color: var(--text-2); margin: 12px 0 4px; }
+  input[type=text] {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-size: 15px;
+  }
+  button {
+    font: inherit; border-radius: 8px; padding: 10px 18px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.ghost { border-color: transparent; color: var(--text-2); }
+  button:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+  .spread { justify-content: space-between; }
+
+  /* quiz */
+  .dots { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0; }
+  .dot {
+    width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--card); font-size: 11px; color: var(--text-3);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;
+  }
+  .dot.answered { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+  .dot.current { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .stem { white-space: pre-line; margin: 4px 0 16px; }
+  .qnum { font-size: 13px; color: var(--text-3); }
+  .choice {
+    display: block; width: 100%; text-align: left; margin: 8px 0; padding: 12px 14px;
+    border-radius: 10px; line-height: 1.6;
+  }
+  .choice .key { color: var(--text-3); font-size: 13px; margin-right: 8px; }
+  .choice.selected { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* result */
+  .type-code { font-size: 40px; font-weight: 700; letter-spacing: 4px; margin: 0; }
+  .type-name { font-size: 20px; font-weight: 600; margin: 2px 0 0; }
+  .type-blurb { color: var(--text-2); margin: 4px 0 0; }
+  .axis-row { margin: 18px 0 0; }
+  .axis-labels { display: flex; justify-content: space-between; font-size: 13px; }
+  .axis-labels .win { font-weight: 700; color: var(--text); }
+  .axis-labels span { color: var(--text-2); }
+  .bar { height: 12px; border-radius: 4px; background: var(--track); margin-top: 4px;
+         overflow: hidden; display: flex; }
+  .bar .fill { background: var(--accent); border-radius: 4px 0 0 4px; }
+  .bar .fill.right { margin-left: auto; border-radius: 0 4px 4px 0; }
+  .strength { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  textarea {
+    width: 100%; min-height: 150px; font: 13px/1.6 ui-monospace, monospace;
+    background: var(--surface); color: var(--text-2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+  }
+  .history { font-size: 13px; color: var(--text-2); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>AIVT-16 <span class="qnum">Ver2 プロトタイプ</span></h1>
+  <p class="sub">AIの応答傾向を4軸×16タイプで記録する診断です。</p>
+
+  <!-- start -->
+  <section id="start">
+    <div class="card">
+      <p>20問。それぞれの場面で、測定したいAI(またはペルソナ)の返答に<strong>いちばん近い選択肢</strong>を選んでください。</p>
+      <p class="note">これは性格の判定ではなく、観察された応答傾向の記録です。正解・不正解や優劣はありません。回答はこの端末(ローカル)にのみ保存されます。</p>
+      <label for="subject">測定対象の名前(モデル名・ペルソナ名など、任意)</label>
+      <input type="text" id="subject" placeholder="例: GPT-4o / うちの子">
+      <div class="row">
+        <button class="primary" id="btn-start">はじめる</button>
+        <button id="btn-resume" class="hidden">続きから</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- quiz -->
+  <section id="quiz" class="hidden">
+    <div class="dots" id="dots"></div>
+    <div class="card">
+      <div class="qnum" id="qnum"></div>
+      <p class="stem" id="stem"></p>
+      <div id="choices"></div>
+      <div class="row spread">
+        <button id="btn-prev">← 前へ</button>
+        <span class="note" id="progress"></span>
+        <button id="btn-next">次へ →</button>
+      </div>
+    </div>
+    <div class="row spread">
+      <button class="ghost" id="btn-quit">中断(保存されます)</button>
+      <button class="primary" id="btn-submit">結果を見る</button>
+    </div>
+  </section>
+
+  <!-- result -->
+  <section id="result" class="hidden">
+    <div class="card" id="result-card">
+      <p class="qnum" id="result-meta"></p>
+      <p class="type-code" id="type-code"></p>
+      <p class="type-name" id="type-name"></p>
+      <p class="type-blurb" id="type-blurb"></p>
+      <div id="axes"></div>
+      <p class="history" id="history"></p>
+    </div>
+    <div class="card">
+      <p class="note">シェア用テキスト</p>
+      <textarea id="share" readonly></textarea>
+      <div class="row">
+        <button id="btn-copy">コピー</button>
+        <button id="btn-json">JSONで保存</button>
+        <button id="btn-retake">同じ対象でもう一回(一貫性チェック)</button>
+        <button class="ghost" id="btn-reset">最初からやり直す</button>
+      </div>
+    </div>
+    <p class="note">※ これは性格ではなく、観察された応答傾向です。</p>
+  </section>
+</main>
+
+<script>
+"use strict";
+const DATA = window.AIVT_DATA;
+const KEY = "aivt16v2.state";
+const LETTERS = ["A", "B", "C", "D"];
+const STRENGTH = { 3: "ゆらぎ", 4: "はっきり", 5: "くっきり" };
+const $ = (id) => document.getElementById(id);
+
+let state = load();
+let current = 0;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch { return null; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+function shuffled() {
+  const a = LETTERS.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function newRun(subject) {
+  const shuffles = {};
+  DATA.questions.forEach((q) => { shuffles[q.id] = shuffled(); });
+  return {
+    version: DATA.version, subject: subject || "",
+    startedAt: new Date().toISOString(),
+    shuffles, answers: {}, history: state?.history || [],
+  };
+}
+
+function show(id) {
+  ["start", "quiz", "result"].forEach((s) => $(s).classList.toggle("hidden", s !== id));
+  window.scrollTo(0, 0);
+}
+
+// ---------- quiz ----------
+function renderQuiz() {
+  const q = DATA.questions[current];
+  $("qnum").textContent = `${q.id} / 20`;
+  $("stem").textContent = q.stem;
+  const order = state.shuffles[q.id]; // 表示位置 i に内部選択肢 order[i]
+  const box = $("choices");
+  box.innerHTML = "";
+  order.forEach((internal, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice" + (state.answers[q.id] === internal ? " selected" : "");
+    btn.innerHTML = `<span class="key">${LETTERS[i]}</span>`;
+    btn.appendChild(document.createTextNode(q.choices[internal].text));
+    btn.onclick = () => {
+      state.answers[q.id] = internal;
+      save();
+      if (current < DATA.questions.length - 1) { current++; renderQuiz(); }
+      else renderQuiz();
+    };
+    box.appendChild(btn);
+  });
+  const answered = Object.keys(state.answers).length;
+  $("progress").textContent = `回答 ${answered} / 20`;
+  $("btn-prev").disabled = current === 0;
+  $("btn-next").disabled = current === DATA.questions.length - 1;
+  const dots = $("dots");
+  dots.innerHTML = "";
+  DATA.questions.forEach((qq, i) => {
+    const d = document.createElement("button");
+    d.className = "dot" + (state.answers[qq.id] ? " answered" : "") + (i === current ? " current" : "");
+    d.textContent = i + 1;
+    d.title = qq.id + (state.answers[qq.id] ? "(回答済み)" : "(未回答)");
+    d.onclick = () => { current = i; renderQuiz(); };
+    dots.appendChild(d);
+  });
+}
+
+// ---------- scoring ----------
+function score() {
+  const perAxis = {};
+  DATA.axisOrder.forEach((ax) => { perAxis[ax] = {}; });
+  DATA.questions.forEach((q) => {
+    const internal = state.answers[q.id];
+    if (!internal) return;
+    const pole = q.choices[internal].pole;
+    perAxis[q.axis][pole] = (perAxis[q.axis][pole] || 0) + 1;
+  });
+  const letters = DATA.axisOrder.map((axId) => {
+    const ax = DATA.axes.find((a) => a.id === axId);
+    const [p1, p2] = Object.keys(ax.poles);
+    const c1 = perAxis[axId][p1] || 0, c2 = perAxis[axId][p2] || 0;
+    let letter = "?";
+    if (c1 !== c2) letter = c1 > c2 ? p1 : p2;
+    return { axId, p1, p2, c1, c2, letter };
+  });
+  return { letters, type: letters.map((l) => l.letter).join("") };
+}
+
+// ---------- result ----------
+function renderResult() {
+  const r = score();
+  const t = DATA.types[r.type];
+  const date = new Date().toLocaleDateString("ja-JP");
+  $("result-meta").textContent =
+    (state.subject ? `対象: ${state.subject} ・ ` : "") + `測定日: ${date}`;
+  $("type-code").textContent = r.type;
+  $("type-name").textContent = t ? t.name : "判定保留の軸があります";
+  $("type-blurb").textContent = t ? t.blurb : "未回答か同点の軸(?)があるため、タイプ名は確定していません。";
+  const axes = $("axes");
+  axes.innerHTML = "";
+  r.letters.forEach((l) => {
+    const ax = DATA.axes.find((a) => a.id === l.axId);
+    const total = l.c1 + l.c2;
+    const leftPct = total ? (l.c1 / total) * 100 : 50;
+    const win = Math.max(l.c1, l.c2);
+    const row = document.createElement("div");
+    row.className = "axis-row";
+    row.innerHTML =
+      `<div class="axis-labels">
+         <span class="${l.letter === l.p1 ? "win" : ""}">${l.p1} ${ax.poles[l.p1].ja} ${l.c1}</span>
+         <span class="${l.letter === l.p2 ? "win" : ""}">${l.c2} ${ax.poles[l.p2].ja} ${l.p2}</span>
+       </div>
+       <div class="bar"><div class="fill${l.letter === l.p2 ? " right" : ""}"
+            style="width:${l.letter === l.p2 ? 100 - leftPct : leftPct}%"></div></div>
+       <div class="strength">${total < 5 ? `回答 ${total}/5` : (STRENGTH[win] || "")}</div>`;
+    axes.appendChild(row);
+  });
+  const hist = state.history.map((h) => h.type).join(" → ");
+  $("history").textContent = hist ? `これまでの実行: ${hist} → 今回: ${r.type}` : "";
+  $("share").value =
+`AIVT-16 Ver2 診断結果
+対象: ${state.subject || "(未記入)"}
+タイプ: ${r.type}${t ? " " + t.name : ""}
+${r.letters.map((l) => {
+  const ax = DATA.axes.find((a) => a.id === l.axId);
+  return `${l.p1}${ax.poles[l.p1].ja} ${l.c1} - ${l.c2} ${ax.poles[l.p2].ja}${l.p2}`;
+}).join("\n")}
+測定日: ${date}
+※性格ではなく、観察された応答傾向です`;
+  show("result");
+  return r;
+}
+
+// ---------- events ----------
+$("btn-start").onclick = () => {
+  state = newRun($("subject").value.trim());
+  save();
+  current = 0;
+  show("quiz");
+  renderQuiz();
+};
+$("btn-resume").onclick = () => {
+  current = DATA.questions.findIndex((q) => !state.answers[q.id]);
+  if (current < 0) current = 0;
+  show("quiz");
+  renderQuiz();
+};
+$("btn-prev").onclick = () => { current--; renderQuiz(); };
+$("btn-next").onclick = () => { current++; renderQuiz(); };
+$("btn-quit").onclick = () => { save(); show("start"); refreshStart(); };
+$("btn-submit").onclick = () => {
+  const unanswered = DATA.questions.filter((q) => !state.answers[q.id]);
+  if (unanswered.length &&
+      !confirm(`未回答が ${unanswered.length} 問あります(${unanswered.map((q) => q.id).join(", ")})。\nこのまま結果を見ますか?(未回答の軸は判定保留になります)`)) {
+    current = DATA.questions.indexOf(unanswered[0]);
+    renderQuiz();
+    return;
+  }
+  renderResult();
+};
+$("btn-copy").onclick = () => {
+  $("share").select();
+  try { navigator.clipboard.writeText($("share").value); } catch {}
+  document.execCommand && document.execCommand("copy");
+  $("btn-copy").textContent = "コピーしました";
+  setTimeout(() => { $("btn-copy").textContent = "コピー"; }, 1500);
+};
+$("btn-json").onclick = () => {
+  const r = score();
+  const payload = {
+    version: DATA.version, subject: state.subject,
+    startedAt: state.startedAt, finishedAt: new Date().toISOString(),
+    type: r.type,
+    axes: r.letters.map((l) => ({ axis: l.axId, [l.p1]: l.c1, [l.p2]: l.c2, letter: l.letter })),
+    answers: DATA.questions.map((q) => ({
+      question: q.id,
+      internal_choice: state.answers[q.id] || null,
+      internal_id: state.answers[q.id] ? `${DATA.version}-${q.id}-${state.answers[q.id]}` : null,
+      display_order: state.shuffles[q.id],
+    })),
+    history: state.history,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `aivt16-${(state.subject || "result").replace(/\s+/g, "_")}-${Date.now()}.json`;
+  a.click();
+};
+$("btn-retake").onclick = () => {
+  const r = score();
+  const hist = state.history.concat([{ type: r.type, at: new Date().toISOString() }]);
+  state = newRun(state.subject);
+  state.history = hist;
+  save();
+  current = 0;
+  show("quiz");
+  renderQuiz();
+};
+$("btn-reset").onclick = () => {
+  if (!confirm("保存された回答と履歴をすべて消して最初からやり直しますか?")) return;
+  localStorage.removeItem(KEY);
+  state = null;
+  show("start");
+  refreshStart();
+};
+
+function refreshStart() {
+  const resumable = state && Object.keys(state.answers || {}).length > 0;
+  $("btn-resume").classList.toggle("hidden", !resumable);
+  if (state?.subject) $("subject").value = state.subject;
+}
+refreshStart();
+</script>
+</body>
+</html>
