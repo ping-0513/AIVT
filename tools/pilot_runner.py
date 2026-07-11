@@ -191,8 +191,17 @@ def mock_bias(model_name, axis):
 # ---------- 実行 ----------
 
 def extract_letter(reply):
-    m = re.search(r"[ABCD]", reply or "")
-    return m.group(0) if m else None
+    """返答から選択記号を抜く。「AとBで迷ったけどC」のような返答では
+    最初の文字を拾うと誤検出するため、記号のみの返答を最優先し、
+    それ以外は最後に現れる独立した記号(結論は末尾に来ることが多い)を採る。"""
+    if not reply:
+        return None
+    t = reply.strip()
+    m = re.fullmatch(r"[\s\*\(\[「『]*([ABCD])[\s\*\.。、\)\]」』]*", t)
+    if m:
+        return m.group(1)
+    hits = re.findall(r"(?<![A-Za-z0-9])([ABCD])(?![A-Za-z0-9])", t)
+    return hits[-1] if hits else None
 
 
 def run_one_model(spec, questions, scoring, repeats, temperature, sleep_s, rng, ctx, raw_out):
@@ -318,6 +327,20 @@ def write_report(path, summaries, scoring, all_raw, repeats):
     lines.append("|---|---|")
     for d in LETTERS:
         lines.append(f"| {d} | {pos.get(d, 0) / total:.0%} |")
+    lines.append("")
+
+    lines += ["## 一度も選ばれなかった選択肢(文言レビュー候補)", ""]
+    picked = Counter((r["question"], r["internal_choice"])
+                     for r in all_raw if r["internal_choice"])
+    never = [(q, c) for q in sorted(scoring) for c in LETTERS if (q, c) not in picked]
+    if never:
+        for q, c in never:
+            r = scoring[q][c]
+            lines.append(f"- {q}-{c}({r['pole']}/{r['flavor']})")
+        lines.append("")
+        lines.append("全モデル×全反復で 0 回選択。魅力・文言のバランスを見直す価値あり。")
+    else:
+        lines.append("なし(全 80 選択肢が少なくとも 1 回選ばれた)")
     lines.append("")
 
     invalid = [r for r in all_raw if not r["internal_choice"]]

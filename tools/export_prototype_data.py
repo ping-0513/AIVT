@@ -64,7 +64,7 @@ def main():
                     for letter in "ABCD"
                 },
             }
-            for qid, q in sorted(parse_questions().items())
+            for qid, q in sorted(questions.items())
         ],
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
